@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VenminderBowling.Domain.Interfaces;
 
 namespace VenminderBowling.Domain
 {
-    internal class Frame
+    public class Frame : IFrame
     {
         private const int MAX_ROLL_SCORE = 10;
         private const int MAX_ROLL_COUNT = 3;
+        private IList<IRoll> Rolls { get; } = new List<IRoll>(MAX_ROLL_COUNT);
 
         public int FrameNumber { get; }
-        public List<Roll> Rolls { get; } = new List<Roll>(MAX_ROLL_COUNT);
 
         public int? Score
         {
@@ -41,20 +42,32 @@ namespace VenminderBowling.Domain
 
         public Frame(int frameNumber)
         {
+            if(frameNumber < 1 || frameNumber > 10)
+            {
+                throw new ArgumentOutOfRangeException("Frame Number allowed values are 1-10");
+            }
             FrameNumber = frameNumber;
         }
 
-        public void AddRoll(Roll roll)
+        public void AddRoll(IRoll roll)
         {
             if (Rolls.Count >= MAX_ROLL_COUNT)
             {
-                throw new Exception("A Frame cannot have more than 3 rolls");
+                throw new InvalidOperationException("A Frame cannot have more than 3 rolls");
             }
             if (Rolls.Count == 1 && HasStrike == false && Rolls[0].Score + roll.Score > MAX_ROLL_SCORE)
             {
-                throw new Exception("the 2 rolls of a frame without a strike cannot be greater than 10");
+                throw new InvalidOperationException("the 2 rolls of a frame without a strike cannot be greater than 10");
             }
             Rolls.Add(roll);
+            if(Rolls.Count == 1 && HasStrike)
+            {
+                Console.WriteLine("You got a Strike!");
+            }
+            if(Rolls.Count == 2 && HasSpare)
+            {
+                Console.WriteLine("You got a Spare!");
+            }
 
         }
 

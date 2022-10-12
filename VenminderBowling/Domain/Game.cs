@@ -3,18 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VenminderBowling.Domain.Interfaces;
 
 namespace VenminderBowling.Domain
 {
-    internal class Game
+    public class Game : IGame
     {
         private int _currentFrame;
         private const int TOTAL_FRAMES = 10;
 
-        private List<Frame> Frames { get; set; } = new List<Frame>();
-        public int CurrentFrame
+        private List<IFrame> Frames { get; set; } = new List<IFrame>();
+        private int CurrentFrameNumber
         {
             get { return _currentFrame + 1; }
+        }
+
+        public IFrame CurrentFrame
+        {
+            get { return Frames[_currentFrame]; }
         }
 
         public bool GameComplete
@@ -33,19 +39,19 @@ namespace VenminderBowling.Domain
 
         public void NewGame()
         {
-            Frames = new List<Frame>(TOTAL_FRAMES);
+            Frames = new List<IFrame>(TOTAL_FRAMES);
             for (_currentFrame = 0; _currentFrame < TOTAL_FRAMES; _currentFrame++)
             {
-                Frames.Add(new Frame(CurrentFrame));
+                Frames.Add(new Frame(CurrentFrameNumber));
             }
             _currentFrame = 0;
         }
 
-        public void addRoll(int score)
+        public void AddRoll(int score)
         {
             if (GameComplete)
             {
-                throw new Exception();
+                throw new InvalidOperationException();
             }
             var roll = new Roll(score);
             //only using a loop here because the collection is always small and not large
@@ -60,7 +66,7 @@ namespace VenminderBowling.Domain
             Frames[_currentFrame].AddRoll(roll);
 
             //on final frame bonus rolls we stay on the current frame instead of advancing to next frame
-            if (Frames[_currentFrame].FrameComplete && CurrentFrame < TOTAL_FRAMES)
+            if (Frames[_currentFrame].FrameComplete && CurrentFrameNumber < TOTAL_FRAMES)
             {
                 _currentFrame++;
             }

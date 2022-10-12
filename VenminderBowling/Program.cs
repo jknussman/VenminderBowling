@@ -12,9 +12,9 @@ var exit = false;
 Console.WriteLine("New Game Started");
 while (!exit)
 {
-    if(game.GameComplete == false)
+    if (game.GameComplete == false)
     {
-        Console.WriteLine($"What is your next roll for Frame {game.CurrentFrame}?");
+        Console.WriteLine($"What is your next roll for Frame {game.CurrentFrame.FrameNumber}?");
     }
     else
     {
@@ -27,7 +27,7 @@ while (!exit)
 
     var command = Console.ReadLine();
 
-    switch(command)
+    switch (command)
     {
         case "help":
             Console.WriteLine("Commands: score - see current score for game");
@@ -46,13 +46,17 @@ while (!exit)
             exit = true;
             break;
         default:
-           if( int.TryParse(command, out int score))
+            if (int.TryParse(command, out int score))
             {
                 try
                 {
-                    game.addRoll(score);
+                    game.AddRoll(score);
                 }
-                catch(Exception ex)
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    Console.WriteLine($"An Invalid command was entered, please try again. {ex.Message}");
+                }
+                catch (InvalidOperationException ex)
                 {
                     Console.WriteLine($"An Invalid command was entered, please try again. {ex.Message}");
                 }
